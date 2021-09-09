@@ -39,7 +39,17 @@ one(::Type{Term})::Term = Term(1,0)
 """
 Show a term.
 """
-show(io::IO, t::Term) = print(io, "$(t.coeff)⋅x^$(t.degree)") #\cdot + [TAB]
+# Changes made here to outputs of a⋅x^1 → a⋅x, b⋅x^0 → b, 1⋅x^n → x^n
+function show(io::IO, t::Term) 
+    if t.degree == 0 
+        output = "$(t.coeff)"
+    elseif t.degree == 1
+        output = t.coeff == 1 ? "x" : "$(t.coeff)⋅x"
+    else
+        output = t.coeff == 1 ? "x^$(t.degree)" : "$(t.coeff)⋅x^$(t.degree)"
+    end
+    print(io, output)
+end
 
 ########################
 # Queries about a term #

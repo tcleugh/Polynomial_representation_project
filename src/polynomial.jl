@@ -109,7 +109,7 @@ function show(io::IO, p::Polynomial)
     else
         n = length(p.terms)
         for (i,t) in enumerate(extract_all!(p.terms))
-            print(io, t, i != n ? " + " : "")
+            print(io, i == 1 ? "" : t.coeff >= 0 ? " + " : " ", t) # Changes made here to fix + - in printing
         end
     end
 end
@@ -232,11 +232,23 @@ Check if a polynomial is equal to 0.
 # Operations with two objects where at least one is a polynomial #
 ##################################################################
 
+# Changes made to add substraction of terms and integers
 """
 Subtraction of two polynomials.
 """
 -(p1::Polynomial, p2::Polynomial)::Polynomial = p1 + (-p2)
 
+"""
+Subtraction of polynomial and a term
+"""
+-(p::Polynomial, t::Term) = p - Polynomial(t)
+-(t::Term, p::Polynomial) = Polynomial(t) - p
+
+"""
+Subtraction of polynomial and an integer
+"""
+-(p::Polynomial, n::Int) = p - Term(n,0)
+-(n::Int, p::Polynomial) = Term(n,0) - p 
 
 """
 Multiplication of polynomial and term.
