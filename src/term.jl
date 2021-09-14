@@ -106,7 +106,7 @@ mod(t::Term, p::Int) = Term(mod(t.coeff,p), t.degree)
 """
 Compute the derivative of a term.
 """
-derivative(t::Term) = Term(t.coeff*t.degree,max(t.degree-1,0))
+derivative(t::Term) = Term(t.coeff*t.degree, max(t.degree-1,0))
 
 """
 Divide two terms. Returns a function of an integer.

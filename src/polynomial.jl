@@ -14,34 +14,23 @@
 A Polynomial type - designed to be for polynomials with integer coefficients.
 """
 struct Polynomial
-    terms::MutableBinaryMaxHeap{Term}   
+    terms::Vector{Term}   
         #The terms in the heap need to satisfy:
             # Will never have terms with 0 coefficient
             # Will never have two terms with same coefficient
         #An empty terms heap means that the polynomial is zero
-    Polynomial() = new(MutableBinaryMaxHeap{Term}())
+    Polynomial() = new(Term[])
 
     #Inner constructor
-    Polynomial(h::MutableBinaryMaxHeap{Term}) = new(h)
+    Polynomial(h::Vector{Term}) = new(sort(h))
 end
 
 """
 Construct a polynomial with a single term.
 """
 function Polynomial(t::Term)
-    terms = MutableBinaryMaxHeap{Term}()
+    terms = Term[]
     t.coeff != 0 && push!(terms, t)
-    return Polynomial(terms)
-end
-
-"""
-Construct a polynomial with a vector of terms.
-"""
-function Polynomial(tv::Vector{Term})
-    terms = MutableBinaryMaxHeap{Term}()
-    for t in tv
-        t.coeff != 0 && push!(terms,t)
-    end
     return Polynomial(terms)
 end
 
@@ -108,8 +97,11 @@ function show(io::IO, p::Polynomial)
         print(io,"0")
     else
         n = length(p.terms)
-        for (i,t) in enumerate(extract_all!(p.terms))
-            print(io, i == 1 ? "" : t.coeff >= 0 ? " + " : " ", t) # Changes made here to fix + - in printing
+        print(io, p.terms[n])
+        n -= 1
+        while n > 0
+            print(io, p.terms[n].coeff >= 0 ? " + " : " ", p.terms[n])
+            n -= 1
         end
     end
 end
@@ -135,7 +127,7 @@ length(p::Polynomial) = length(p.terms)
 """
 The leading term of the polynomial.
 """
-leading(p::Polynomial)::Term = isempty(p.terms) ? zero(Term) : first(p.terms) 
+leading(p::Polynomial)::Term = isempty(p.terms) ? zero(Term) : last(p.terms) 
 
 """
 Returns the coefficients of the polynomial.
@@ -155,7 +147,7 @@ content(p::Polynomial)::Int = euclid_alg(coeffs(p))
 """
 Evaluate the polynomial at a point `x`.
 """
-evaluate(f::Polynomial, x::T) where T <: Number = sum(evaluate(t,x) for t in f)
+evaluate(f::Polynomial, x::T) where T <: Number = sum(evaluate(t, x) for t in f)
 
 ################################
 # Pushing and popping of terms #
@@ -167,7 +159,13 @@ Push a new term into the polynomial.
 #Note that ideally this would throw and error if pushing another term of degree that is already in the polynomial
 function push!(p::Polynomial, t::Term) 
     iszero(t) && return #don't push a zero
-    push!(p.terms,t)
+    for term in p.terms
+        term.degree == t.degree && @assert ArgumentError("Polynomial can't have two terms of the same degree")
+    end
+    
+    push!(p.terms, t)
+    sort!(p.terms)
+    return p
 end
 
 """
@@ -196,7 +194,7 @@ function derivative(p::Polynomial)::Polynomial
     der_p = Polynomial()
     for term in p
         der_term = derivative(term)
-        !iszero(der_term) && push!(der_p,der_term)
+        !iszero(der_term) && push!(der_p, der_term)
     end
     return der_p
 end
@@ -210,7 +208,7 @@ prim_part(p::Polynomial) = p ÷ content(p)
 """
 A square free polynomial.
 """
-square_free(p::Polynomial, prime::Int)::Polynomial = (p ÷ gcd(p,derivative(p),prime))(prime)
+square_free(p::Polynomial, prime::Int)::Polynomial = (p ÷ gcd(p, derivative(p), prime))(prime)
 
 #################################
 # Queries about two polynomials #
@@ -226,7 +224,7 @@ Check if two polynomials are the same
 Check if a polynomial is equal to 0.
 """
 # changed to resolve equality with integers
-==(p::Polynomial, n::T) where T <: Real = (T == 0) ? iszero(p) == iszero(n) : (T == T ÷ 1) && p == Polynomial(T)
+==(p::Polynomial, n::T) where T <: Real = (n == 0) ? iszero(p) == iszero(n) : (n == n ÷ 1) && p == Polynomial(Term(n))
 
 ##################################################################
 # Operations with two objects where at least one is a polynomial #
@@ -253,7 +251,7 @@ Subtraction of polynomial and an integer
 """
 Multiplication of polynomial and term.
 """
-*(t::Term,p1::Polynomial)::Polynomial = iszero(t) ? Polynomial() : Polynomial(map((pt) -> t * pt, p1.terms))
+*(t::Term,p1::Polynomial)::Polynomial = iszero(t) ? Polynomial() : Polynomial(sort(map((pt) -> t * pt, p1.terms)))
 *(p1::Polynomial, t::Term)::Polynomial = t * p1
 
 """
@@ -267,7 +265,7 @@ Integer division of a polynomial by an integer.
 
 Warning this may not make sense if n does not divide all the coefficients of p.
 """
-÷(p::Polynomial,n::Int) = (prime)->Polynomial(map((pt)->((pt ÷ n)(prime)), p.terms))
+÷(p::Polynomial,n::Int) = (prime)->Polynomial(sort(map((pt)->((pt ÷ n)(prime)), p.terms)))
 
 """
 Take the smod of a polynomial with an integer.

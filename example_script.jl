@@ -18,3 +18,5 @@ println("Here is the factorization: ", factorization)
 
 pr = mod(expand_factorization(factorization),prime)
 println("Reconstructing: ", pr)
+
+@show p4 = PolynomialModP(p1, 3)
