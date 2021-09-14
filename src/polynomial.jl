@@ -225,8 +225,8 @@ Check if two polynomials are the same
 """
 Check if a polynomial is equal to 0.
 """
-#Note that in principle there is a problem here. E.g The polynomial 3 will return true to equalling the integer 2.
-==(p::Polynomial, n::T) where T <: Real = iszero(p) == iszero(n)
+# changed to resolve equality with integers
+==(p::Polynomial, n::T) where T <: Real = (T == 0) ? iszero(p) == iszero(n) : (T == T ÷ 1) && p == Polynomial(T)
 
 ##################################################################
 # Operations with two objects where at least one is a polynomial #
@@ -253,14 +253,14 @@ Subtraction of polynomial and an integer
 """
 Multiplication of polynomial and term.
 """
-*(t::Term,p1::Polynomial)::Polynomial = iszero(t) ? Polynomial() : Polynomial(map((pt)->t*pt, p1.terms))
-*(p1::Polynomial, t::Term)::Polynomial = t*p1
+*(t::Term,p1::Polynomial)::Polynomial = iszero(t) ? Polynomial() : Polynomial(map((pt) -> t * pt, p1.terms))
+*(p1::Polynomial, t::Term)::Polynomial = t * p1
 
 """
 Multiplication of polynomial and an integer.
 """
-*(n::Int,p::Polynomial)::Polynomial = p*Term(n,0)
-*(p::Polynomial,n::Int)::Polynomial = n*p
+*(n::Int,p::Polynomial)::Polynomial = p * Term(n,0)
+*(p::Polynomial,n::Int)::Polynomial = n * p
 
 """
 Integer division of a polynomial by an integer.
