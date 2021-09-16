@@ -15,14 +15,14 @@ A Polynomial type - designed to be for polynomials with integer coefficients.
 """
 struct Polynomial
     terms::Vector{Term}   
-        #The terms in the heap need to satisfy:
+        #The terms in the vector need to satisfy:
             # Will never have terms with 0 coefficient
-            # Will never have two terms with same coefficient
-        #An empty terms heap means that the polynomial is zero
+            # Will never have two terms with same degree
+            # Will always be sorted 
     Polynomial() = new(Term[])
 
     #Inner constructor
-    Polynomial(h::Vector{Term}) = new(sort(h))
+    Polynomial(h::Vector{Term}) = new(sort(filter((term) -> term.coeff != 0, h)))
 end
 
 """
@@ -94,7 +94,7 @@ Show a polynomial.
 function show(io::IO, p::Polynomial) 
     p = deepcopy(p)
     if iszero(p)
-        print(io,"0")
+        print(io, "0")
     else
         n = length(p.terms)
         print(io, p.terms[n])
@@ -147,7 +147,7 @@ content(p::Polynomial)::Int = euclid_alg(coeffs(p))
 """
 Evaluate the polynomial at a point `x`.
 """
-evaluate(f::Polynomial, x::T) where T <: Number = sum(evaluate(t, x) for t in f)
+evaluate(p::Polynomial, x::T) where T <: Number = sum(evaluate(term, x) for term in p)
 
 ################################
 # Pushing and popping of terms #
@@ -156,15 +156,11 @@ evaluate(f::Polynomial, x::T) where T <: Number = sum(evaluate(t, x) for t in f)
 """
 Push a new term into the polynomial.
 """
-#Note that ideally this would throw and error if pushing another term of degree that is already in the polynomial
 function push!(p::Polynomial, t::Term) 
     iszero(t) && return #don't push a zero
-    for term in p.terms
-        term.degree == t.degree && @assert ArgumentError("Polynomial can't have two terms of the same degree")
-    end
-    
-    push!(p.terms, t)
-    sort!(p.terms)
+    insorted(t, p.terms) && @assert ArgumentError("Polynomial can't have two terms of the same degree")
+    # inserts term into appropriate position
+    insert!(p.terms, first(searchsorted(p.terms, t)), t)
     return p
 end
 
@@ -185,7 +181,7 @@ iszero(p::Polynomial)::Bool = isempty(p.terms)
 """
 The negative of a polynomial.
 """
--(p::Polynomial) = Polynomial(map((pt)->-pt, p.terms))
+-(p::Polynomial) = Polynomial(map((term) -> -term, p.terms))
 
 """
 Create a new polynomial which is the derivative of the polynomial.
@@ -193,8 +189,7 @@ Create a new polynomial which is the derivative of the polynomial.
 function derivative(p::Polynomial)::Polynomial 
     der_p = Polynomial()
     for term in p
-        der_term = derivative(term)
-        !iszero(der_term) && push!(der_p, der_term)
+        push!(der_p, derivative(term)) #if coeff reduced to zero, push! will handle it
     end
     return der_p
 end
@@ -203,7 +198,6 @@ end
 The prim part (multiply a polynomial by the inverse of its content).
 """
 prim_part(p::Polynomial) = p ÷ content(p)
-
 
 """
 A square free polynomial.
@@ -218,7 +212,6 @@ square_free(p::Polynomial, prime::Int)::Polynomial = (p ÷ gcd(p, derivative(p),
 Check if two polynomials are the same
 """
 ==(p1::Polynomial, p2::Polynomial)::Bool = p1.terms == p2.terms
-
 
 """
 Check if a polynomial is equal to 0.
@@ -239,41 +232,41 @@ Subtraction of two polynomials.
 """
 Subtraction of polynomial and a term
 """
--(p::Polynomial, t::Term) = p - Polynomial(t)
--(t::Term, p::Polynomial) = Polynomial(t) - p
+-(p::Polynomial, t::Term)::Polynomial = p - Polynomial(t)
+-(t::Term, p::Polynomial)::Polynomial = Polynomial(t) - p
 
 """
 Subtraction of polynomial and an integer
 """
--(p::Polynomial, n::Int) = p - Term(n,0)
--(n::Int, p::Polynomial) = Term(n,0) - p 
+-(p::Polynomial, n::Int)::Polynomial = p - Term(n,0)
+-(n::Int, p::Polynomial)::Polynomial = Term(n,0) - p 
 
 """
 Multiplication of polynomial and term.
 """
-*(t::Term,p1::Polynomial)::Polynomial = iszero(t) ? Polynomial() : Polynomial(sort(map((pt) -> t * pt, p1.terms)))
-*(p1::Polynomial, t::Term)::Polynomial = t * p1
+*(t::Term, p::Polynomial)::Polynomial = iszero(t) ? Polynomial() : Polynomial(sort(map((term) -> t * term, p.terms)))
+*(p::Polynomial, t::Term)::Polynomial = t * p
 
 """
 Multiplication of polynomial and an integer.
 """
-*(n::Int,p::Polynomial)::Polynomial = p * Term(n,0)
-*(p::Polynomial,n::Int)::Polynomial = n * p
+*(n::Int, p::Polynomial)::Polynomial = p * Term(n, 0)
+*(p::Polynomial, n::Int)::Polynomial = n * p
 
 """
 Integer division of a polynomial by an integer.
 
 Warning this may not make sense if n does not divide all the coefficients of p.
 """
-÷(p::Polynomial,n::Int) = (prime)->Polynomial(sort(map((pt)->((pt ÷ n)(prime)), p.terms)))
+÷(p::Polynomial, n::Int) = (prime) -> Polynomial(sort(map((term) -> ((term ÷ n)(prime)), p.terms)))
 
 """
-Take the smod of a polynomial with an integer.
+Take the symmetric mod of a polynomial with an integer.
 """
-function mod(f::Polynomial, p::Int)::Polynomial
+function mod(p::Polynomial, n::Int)::Polynomial
     p_out = Polynomial()
-    for t in f
-        push!(p_out, mod(t, p)) #if coeff reduced to zero, push! will handle it
+    for term in p
+        push!(p_out, mod(term, n)) #if coeff reduced to zero, push! will handle it
     end
     return p_out
 end

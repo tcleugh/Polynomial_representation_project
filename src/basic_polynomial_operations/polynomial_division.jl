@@ -16,7 +16,7 @@ p is a prime
 function divide(num::Polynomial, den::Polynomial)
     function division_function(p::Int)
         f, g = mod(num,p), mod(den,p)
-        degree(f) < degree(num) && return nothing 
+        degree(f) < degree(num) && return nothing
         iszero(g) && throw(DivideError())
         q = Polynomial()
         prev_degree = degree(f)
@@ -36,7 +36,7 @@ end
 """
 The quotient from polynomial division. Returns a function of an integer.
 """
-÷(num::Polynomial, den::Polynomial)  = (p::Int) -> first(divide(num,den)(p))
+÷(num::Polynomial, den::Polynomial)  = (p::Int) -> first(divide(num, den)(p))
 
 """
 The remainder from polynomial division. Returns a function of an integer.

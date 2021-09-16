@@ -9,7 +9,7 @@ println("The basic polynomial x can be constructed as:")
 println()
 
 println("Arithmetic with integers is supported")
-@show p1 = 3(x - 1)
+@show p1 = x^4 + 5x^2 - 3x - 7
 println()
 
 
