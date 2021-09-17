@@ -28,7 +28,7 @@ end
 """
 Construct a polynomial with a single term.
 """
-function Polynomial(t::Term)
+function Polynomial(t::Term)::Polynomial
     terms = Term[]
     t.coeff != 0 && push!(terms, t)
     return Polynomial(terms)
@@ -37,18 +37,18 @@ end
 """
 Construct a polynomial of the form x^p-x.
 """
-cyclotonic_polynomial(p::Int) = Polynomial([Term(1,p), Term(-1,0)])
+cyclotonic_polynomial(p::Int)::Polynomial = Polynomial([Term(1,p), Term(-1,0)])
 
 
 """
 Construct a polynomial of the form x-n.
 """
-linear_monic_polynomial(n::Int) = Polynomial([Term(1,1), Term(-n,0)])
+linear_monic_polynomial(n::Int)::Polynomial = Polynomial([Term(1,1), Term(-n,0)])
 
 """
 Construct a polynomial of the form x.
 """
-x_poly() = Polynomial(Term(1,1))
+x_poly()::Polynomial = Polynomial(Term(1,1))
 
 """
 Creates the zero polynomial.
@@ -122,7 +122,7 @@ iterate(p::Polynomial, state=1) = iterate(p.terms, state)
 """
 The number of terms of the polynomial.
 """
-length(p::Polynomial) = length(p.terms)
+length(p::Polynomial)::Integer = length(p.terms)
 
 """
 The leading term of the polynomial.
@@ -135,14 +135,26 @@ Returns the coefficients of the polynomial.
 coeffs(p::Polynomial)::Vector{Int} = [t.coeff for t in p]
 
 """
+Returns the coefficient of the term in the polynomial with given degree
+"""
+function coeff(p::polynomial, k::Integer)::Integer
+    for term in p.terms
+        if term.degree == k
+            return term.coeff
+        end
+    end
+    return 0
+end
+
+"""
 The degree of the polynomial.
 """
-degree(p::Polynomial)::Int = leading(p).degree 
+degree(p::Polynomial)::Integer = leading(p).degree 
 
 """
 The content of the polynomial is the GCD of its coefficients.
 """
-content(p::Polynomial)::Int = euclid_alg(coeffs(p))
+content(p::Polynomial)::Integer = euclid_alg(coeffs(p))
 
 """
 Evaluate the polynomial at a point `x`.
@@ -269,17 +281,4 @@ function mod(p::Polynomial, n::Int)::Polynomial
         push!(p_out, mod(term, n)) #if coeff reduced to zero, push! will handle it
     end
     return p_out
-end
-
-"""
-Power of a polynomial mod prime.
-"""
-function pow_mod(p::Polynomial, n::Int, prime::Int)
-    n < 0 && error("No negative power")
-    out = one(p)
-    for _ in 1:n
-        out *= p
-        out = mod(out, prime)
-    end
-    return out
 end

@@ -59,3 +59,16 @@ function int_inverse_mod(a::Int, m::Int)::Int
     end
     return mod(ext_euclid_alg(a,m)[2],m)
 end
+
+"""
+Integer symmetric mod
+"""
+smod(a::Integer, m::Integer) = (mod(a, m) > m ÷ 2) ? mod(a, m) - m : mod(a, m)
+
+
+"""
+Chinese remainder therom on two integers
+"""
+function crt(a::Integer, b::Integer, n::Integer, m::Integer)::Integer
+    return mod(a * int_inverse_mod(m, n) + b * int_inverse_mod(n, m), n*m)
+end

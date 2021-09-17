@@ -27,8 +27,8 @@ prod_derivative_test_poly()
 ####
 # Execute unit tests for polynomial factorization
 ####
-include("factorization_test.jl")
-factor_test_poly()
+#include("factorization_test.jl")
+#factor_test_poly()
 
 ####
 # Execute unit tests for polynomial mod p

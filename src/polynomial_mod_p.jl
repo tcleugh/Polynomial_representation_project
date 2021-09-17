@@ -96,14 +96,19 @@ Returns the coefficients of the polynomial.
 coeffs(p::PolynomialModP)::Vector{Int} = coeffs(p.poly)
 
 """
+Returns the coefficient mod p of the term in the polynomial with given degree
+"""
+coeff(p::PolynomialModP, k::Integer)::Integer = coeff(p.poly, k)
+
+"""
 The degree of the polynomial.
 """
-degree(p::PolynomialModP)::Int = degree(p.poly)
+degree(p::PolynomialModP)::Integer = degree(p.poly)
 
 """
 The content of the polynomial is the GCD of its coefficients.
 """
-content(p::PolynomialModP)::Int = content(p.poly)
+content(p::PolynomialModP)::Integer = content(p.poly)
 
 """
 Evaluate the polynomial at a point `x`.
@@ -233,7 +238,33 @@ Multiply two polynomials mod p.
 """
 function *(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
     @assert p1.prime == p2.prime
+    h1, h2 = max(abs.(coeffs(p1))), max(abs.(coeffs(p2)))
+
+    b = 2 * h1 * h2 * min(degree(p1) + 1, degree(p2) + 1)
+    m = 3
+    c = 
+
     return PolynomialModP(p1.poly * p2.poly, p1.prime)
+end
+
+"""
+Chinese remainder therom on two polynomials mod p
+"""
+function crt(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
+    d1, d2 = degree(p1), degree(p2)
+    n, m = p1.prime, p2.prime
+    out = zero(Polynomial)
+    x = x_poly()
+    
+    k = max(degree(p1), degree(p2))
+    while k > 0
+        ak = (k > d1) ? 0 : coeff(p1, k)
+        bk = (k > d2) ? 0 : coeff(p2, k)
+        ck = crt(ak, bk, n, m)
+        out += ck * x^k
+        k -= 1
+    end
+    return out
 end
 
 """
@@ -310,27 +341,7 @@ Warning this may not make sense if n does not divide all the coefficients of p.
 """
 ÷(p::PolynomialModP, n::Int)::PolynomialModP = PolynomialModP(p.poly ÷ n, p.prime)
 
-"""
-The extended euclid algorithm for polynomials mod p
-"""
-function extended_euclid_alg1(p1::PolynomialModP, p2::PolynomialModP)
-    @assert p1.prime == p2.prime
-    a, b, prime = p1.poly, p2.poly, p1.prime
-
-    old_r, r = mod(a, prime), mod(b, prime)
-    old_s, s = one(Polynomial), zero(Polynomial)
-    old_t, t = zero(Polynomial), one(Polynomial)
-
-    while !iszero(mod(r, prime))
-        q = divide(old_r, r)(prime) |> first
-        old_r, r = r, mod(old_r - q*r, prime)
-        old_s, s = s, mod(old_s - q*s, prime)
-        old_t, t = t, mod(old_t - q*t, prime)
-    end
-    g, s, t = old_r, old_s, old_t
-    @assert mod(s*a + t*b - g, prime) == 0
-    return g, s, t  
-end
+### GCD calcluations ###
 
 """
 The extended euclid algorithm for polynomials mod p
