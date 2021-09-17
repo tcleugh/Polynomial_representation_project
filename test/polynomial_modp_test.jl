@@ -96,7 +96,7 @@ function division_test_poly_modp(;prime::Int = 101, N::Int = 10^4, seed::Int = 0
         q, r = PolynomialModP(prime), PolynomialModP(prime)
         try
             q, r = divide(p_prod, p2)
-            if (q, r) == (nothing,nothing)
+            if iszero(q)
                 println("Unlucky prime: $p1 is reduced to $(p1 % prime) modulo $prime")
                 continue
             end
@@ -121,7 +121,8 @@ function ext_euclid_test_poly_modp(;prime::Int=101, N::Int = 10^3, seed::Int = 0
         p1 = rand(PolynomialModP, prime)
         p2 = rand(PolynomialModP, prime)
         g, s, t = extended_euclid_alg(p1, p2)
-        @assert mod(s*p1 + t*p2 - g, prime) == 0
+        @assert iszero(s*p1 + t*p2 - g)
     end
     println("ext_euclid_test_poly_modp - PASSED")
 end
+
