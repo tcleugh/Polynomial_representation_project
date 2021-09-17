@@ -139,7 +139,7 @@ pop!(p::PolynomialModP)::Term = pop!(p.poly)
 """
 Check if the polynomial is zero.
 """
-iszero(p::PolynomialModP)::Bool = isempty(p.poly.terms)
+iszero(p::PolynomialModP)::Bool = iszero(p.poly)
 
 
 #############################################################################
@@ -233,11 +233,15 @@ Multiply two polynomials mod p.
 """
 function *(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
     @assert p1.prime == p2.prime
-    p_out = PolynomialModP(p1.prime)
-    for term in p1
-        p_out = p_out + (term * p2)
-    end
-    return p_out
+    return PolynomialModP(p1.poly * p2.poly, p1.prime)
+end
+
+"""
+Multiply two polynomials mod p.
+"""
+function old_mult(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
+    @assert p1.prime == p2.prime
+    return PolynomialModP(p1.poly * p2.poly, p1.prime)
 end
 
 """
@@ -245,11 +249,11 @@ Power of a polynomial mod p.
 """
 function ^(p::PolynomialModP, n::Int)
     n < 0 && error("No negative power")
-    out = one(Polynomial)
+    out = one(PolynomialModP, p.prime)
     for _ in 1:n
-        out = mod(out * p.poly, p.prime)
+        out*= p
     end
-    return PolynomialModP(out, p.prime)
+    return out
 end
 
 """
@@ -271,21 +275,21 @@ Integer division of two polynomials mod p.
 """
 function divide(num::PolynomialModP, den::PolynomialModP)
     @assert num.prime == den.prime
-    f, g, p = num, den, num.prime
+    rem, prime = num, num.prime
 
-    degree(f) < degree(g) && return (nothing, nothing)
-    iszero(g) && throw(DivideError())
-    q = PolynomialModP(p)
-    prev_degree = degree(f)
-    while degree(f) ≥ degree(g) 
-        h = PolynomialModP((leading(f) ÷ leading(g))(p), p)  
-        f = mod((f - h*g), p)
-        q = mod((q + h), p)  
-        prev_degree == degree(f) && break
-        prev_degree = degree(f)
+    degree(rem) < degree(den) && return (zero(PolynomialModP, prime), rem)
+    iszero(den) && throw(DivideError())
+    quo = PolynomialModP(prime)
+    prev_degree = degree(rem)
+    while degree(rem) ≥ degree(den) 
+        h = PolynomialModP((leading(rem) ÷ leading(den))(prime), prime)
+        rem = rem - h * den
+        quo = quo + h  
+        prev_degree == degree(rem) && break
+        prev_degree = degree(rem)
     end
-    @assert iszero(mod((num  - (q*g + f)), p))
-    return q, f
+    @assert iszero(num  - (quo * den + rem))
+    return quo, rem
 
 end
 
@@ -317,7 +321,7 @@ function extended_euclid_alg1(p1::PolynomialModP, p2::PolynomialModP)
     old_s, s = one(Polynomial), zero(Polynomial)
     old_t, t = zero(Polynomial), one(Polynomial)
 
-    while !iszero(mod(r,prime))
+    while !iszero(mod(r, prime))
         q = divide(old_r, r)(prime) |> first
         old_r, r = r, mod(old_r - q*r, prime)
         old_s, s = s, mod(old_s - q*s, prime)
@@ -346,7 +350,7 @@ function extended_euclid_alg(p1::PolynomialModP, p2::PolynomialModP)
         old_t, t = t, old_t - q * t
     end
     g, s, t = old_r, old_s, old_t
-    @assert mod(s*p1 + t*p2 - g, prime) == 0
+    @assert iszero(s*p1 + t*p2 - g)
     return g, s, t  
 end
 

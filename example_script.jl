@@ -20,3 +20,17 @@ pr = mod(expand_factorization(factorization),prime)
 println("Reconstructing: ", pr)
 
 @show p4 = PolynomialModP(p1, 3)
+
+println()
+println()
+
+@show g1,s1,t1 = extended_euclid_alg(p1, p2, 11)
+@show mod(s1*p1 + t1*p2 - g1, 11)
+
+println()
+p1m = PolynomialModP(p1, 11)
+p2m = PolynomialModP(p2, 11)
+
+@show g,s,t = extended_euclid_alg(p1m, p2m)
+
+@show mod(s*p1m + t*p2m - g, 11)

@@ -48,6 +48,11 @@ println("Arithmetic between polynomials:")
 @show p1 + p3
 @show p2 - p4
 @show p1 * p3
+println()
+
+
+pm1 = PolynomialModP(x + 1, 7)
+@show pm1^2
 
 
 #p2_d_p1 = p2 ÷ p1
