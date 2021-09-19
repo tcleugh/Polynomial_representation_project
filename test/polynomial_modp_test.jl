@@ -146,3 +146,23 @@ function power_test_poly_modp(;prime::Int=101, N::Int = 10^3, seed::Int = 0)
     println("power_test_poly_modp - PASSED")
 end
 
+
+"""
+Test factorization of polynomials mod p.
+"""
+function factor_test_poly(;N::Int = 25, seed::Int = 0, primes::Vector{Int} = [5,7,17,19])
+    Random.seed!(seed)
+    for prime in primes
+        print("\ndoing prime = $prime \t")
+        for _ in 1:N
+            print(".")
+            p = PolynomialModP(rand(Polynomial), prime)
+            factorization = factor(p)
+            pr = expand_factorization(factorization)
+            @assert iszero(p-pr)
+        end
+    end
+
+    println("\nfactor_test_poly - PASSED")
+end
+
