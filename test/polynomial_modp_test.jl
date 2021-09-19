@@ -138,10 +138,10 @@ function power_test_poly_modp(;prime::Int=101, N::Int = 10^3, seed::Int = 0)
         n = rand(0:20)
         pn = one(PolynomialModP, prime)
         for _ in 1:n
-            pn = old_mult(pn, p)
+            pn *= p
         end
 
-        @assert p^n = pn
+        @assert p^n == pn
     end
     println("power_test_poly_modp - PASSED")
 end

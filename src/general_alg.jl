@@ -72,3 +72,31 @@ Chinese remainder therom on two integers
 function crt(a::Integer, b::Integer, n::Integer, m::Integer)::Integer
     return mod(a * int_inverse_mod(m, n) + b * int_inverse_mod(n, m), n*m)
 end
+
+"""
+Checks if the given number is prime
+"""
+function isPrime(n::Integer)::Bool
+    n <= 1 && return false
+    n <= 3 && return True
+     
+    ((n % 2 == 0) || (n % 3 == 0)) && return false
+     
+    for i in 5:6:√n 
+        (n % i == 0) || (n % (i + 2) == 0) && return false
+    end 
+    return true
+end
+
+"""
+Returns the next prime number after N
+"""
+function nextPrime(N::Integer)::Integer
+    (N <= 1) && return 2
+
+    while true
+        N += 1
+        isPrime(N) && return N
+    end
+end
+

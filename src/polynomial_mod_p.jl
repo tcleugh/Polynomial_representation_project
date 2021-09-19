@@ -22,37 +22,27 @@ end
 """
 Construct a polynomial from a single term in the given field.
 """
-function PolynomialModP(term::Term, prime::Integer)
-    return PolynomialModP(Polynomial(term), prime)
-end
+PolynomialModP(term::Term, prime::Integer) = PolynomialModP(Polynomial(term), prime)
 
 """
 Construct the zero polynomial in the given field.
 """
-function PolynomialModP(prime::Integer)
-    return PolynomialModP(Polynomial(), prime)
-end
+PolynomialModP(prime::Integer) = PolynomialModP(Polynomial(), prime)
 
 """
 Construct the zero polynomial in the given field.
 """
-function zero(::Type{PolynomialModP}, prime::Integer)
-    return PolynomialModP(prime)
-end
+zero(::Type{PolynomialModP}, prime::Integer) = PolynomialModP(prime)
 
 """
 Construct the one polynomial in the given field.
 """
-function one(::Type{PolynomialModP}, prime::Integer)
-    return PolynomialModP(one(Polynomial), prime)
-end
+one(::Type{PolynomialModP}, prime::Integer) = PolynomialModP(one(Polynomial), prime)
 
 """
 Generates a random polynomial mod p.
 """
-function rand(::Type{PolynomialModP}, prime::Integer)
-    return PolynomialModP(rand(Polynomial), prime)
-end
+rand(::Type{PolynomialModP}, prime::Integer) = PolynomialModP(rand(Polynomial), prime)
 
 
 ###########
@@ -191,7 +181,6 @@ Check if a polynomial is equal to an integer mod p.
 #####################################
 
 ### Addition ###
-
 """
 Addition of two polynomials mod p.
 """
@@ -212,8 +201,8 @@ Add a polynomial and an integer.
 +(p::PolynomialModP, n::Int) = PolynomialModP(p.poly + n, p.prime)
 +(n::Int, p::PolynomialModP) = n + p
 
-### Subtraction ###
 
+### Subtraction ###
 """
 Subtraction of two polynomials mod p.
 """
@@ -231,48 +220,19 @@ Subtraction of polynomial and an integer mod p
 -(p::PolynomialModP, n::Int) = PolnomialModP(p.poly - n, p.prime)
 -(n::Int, p::PolynomialModP) = PolnomialModP(n - p.poly, p.prime)
 
-### Multiplication ###
 
+### Multiplication ###
 """
 Multiply two polynomials mod p.
 """
 function *(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
     @assert p1.prime == p2.prime
-    h1, h2 = maximum(abs.(coeffs(p1))), maximum(abs.(coeffs(p2)))
+    p_out = zero(PolynomialModP, p1.prime)
 
-    b = 2 * h1 * h2 * min(degree(p1) + 1, degree(p2) + 1)
-    m = 3
-    c = 
-
-    return PolynomialModP(p1.poly * p2.poly, p1.prime)
-end
-
-"""
-Chinese remainder therom on two polynomials mod p
-"""
-function crt(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
-    d1, d2 = degree(p1), degree(p2)
-    n, m = p1.prime, p2.prime
-    out = zero(Polynomial)
-    x = x_poly()
-    
-    k = max(degree(p1), degree(p2))
-    while k > 0
-        ak = (k > d1) ? 0 : coeff(p1, k)
-        bk = (k > d2) ? 0 : coeff(p2, k)
-        ck = crt(ak, bk, n, m)
-        out += ck * x^k
-        k -= 1
+    for t in p1
+        p_out += PolynomialModP(t * p2.poly, p1.prime)
     end
-    return out
-end
-
-"""
-Multiply two polynomials mod p.
-"""
-function old_mult(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
-    @assert p1.prime == p2.prime
-    return PolynomialModP(p1.poly * p2.poly, p1.prime)
+    return p_out
 end
 
 """
@@ -289,12 +249,11 @@ function ^(p::PolynomialModP, n::Int)
 
     for i in 1:(len)
         if digs[i] == 1 
-           out = old_mult(out, square) 
+           out *= square
         end
         (i == 0) && break
-        square = old_mult(square, square)
+        square *= square
     end
-
     return out
 end
 
@@ -322,8 +281,8 @@ Multiplication of polynomial and an integer mod p.
 *(n::Int, p::PolynomialModP)::PolynomialModP = PolynomialModP(p.poly * n, p.prime)
 *(p::PolynomialModP, n::Int)::PolynomialModP = n * p
 
-### Division ###
 
+### Division ###
 """
 Integer division of two polynomials mod p.
 """
