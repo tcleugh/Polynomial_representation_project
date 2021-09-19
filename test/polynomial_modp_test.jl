@@ -126,3 +126,23 @@ function ext_euclid_test_poly_modp(;prime::Int=101, N::Int = 10^3, seed::Int = 0
     println("ext_euclid_test_poly_modp - PASSED")
 end
 
+
+"""
+Test the power function for polynomials mod p.
+"""
+function power_test_poly_modp(;prime::Int=101, N::Int = 10^3, seed::Int = 0)
+    Random.seed!(seed)
+    for _ in 1:N
+        p = rand(PolynomialModP, prime)
+        
+        n = rand(0:20)
+        pn = one(PolynomialModP, prime)
+        for _ in 1:n
+            pn = old_mult(pn, p)
+        end
+
+        @assert p^n = pn
+    end
+    println("power_test_poly_modp - PASSED")
+end
+

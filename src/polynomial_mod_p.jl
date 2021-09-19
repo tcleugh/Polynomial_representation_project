@@ -238,7 +238,7 @@ Multiply two polynomials mod p.
 """
 function *(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
     @assert p1.prime == p2.prime
-    h1, h2 = max(abs.(coeffs(p1))), max(abs.(coeffs(p2)))
+    h1, h2 = maximum(abs.(coeffs(p1))), maximum(abs.(coeffs(p2)))
 
     b = 2 * h1 * h2 * min(degree(p1) + 1, degree(p2) + 1)
     m = 3
@@ -281,6 +281,29 @@ Power of a polynomial mod p.
 function ^(p::PolynomialModP, n::Int)
     n < 0 && error("No negative power")
     out = one(PolynomialModP, p.prime)
+    n == 0 && return out
+    
+    digs = digits(n, base=2)
+    len = length(digs)
+    square = p
+
+    for i in 1:(len)
+        if digs[i] == 1 
+           out = old_mult(out, square) 
+        end
+        (i == 0) && break
+        square = old_mult(square, square)
+    end
+
+    return out
+end
+
+"""
+Power of a polynomial mod p.
+"""
+function old_pow(p::PolynomialModP, n::Int)
+    n < 0 && error("No negative power")
+    out = one(PolynomialModP, p.prime)
     for _ in 1:n
         out*= p
     end
@@ -288,13 +311,13 @@ function ^(p::PolynomialModP, n::Int)
 end
 
 """
-Multiplication of polynomial and term.
+Multiplication of polynomial and term mod p.
 """
 *(t::Term, p::PolynomialModP)::PolynomialModP = PolynomialModP(t * p.poly, p.prime)
 *(p::PolynomialModP, t::Term)::PolynomialModP = t * p
 
 """
-Multiplication of polynomial and an integer.
+Multiplication of polynomial and an integer mod p.
 """
 *(n::Int, p::PolynomialModP)::PolynomialModP = PolynomialModP(p.poly * n, p.prime)
 *(p::PolynomialModP, n::Int)::PolynomialModP = n * p

@@ -137,7 +137,7 @@ coeffs(p::Polynomial)::Vector{Int} = [t.coeff for t in p]
 """
 Returns the coefficient of the term in the polynomial with given degree
 """
-function coeff(p::polynomial, k::Integer)::Integer
+function coeff(p::Polynomial, k::Integer)::Integer
     for term in p.terms
         if term.degree == k
             return term.coeff

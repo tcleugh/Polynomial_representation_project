@@ -1,7 +1,7 @@
 include("poly_factorization_project.jl")
 
-m = 7
+x = x_poly()
 
-for i in 0:7
-    println(smod(i, m))
-end
+p = rand(PolynomialModP, 101)
+println(p)
+println(p^123)
