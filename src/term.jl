@@ -99,14 +99,19 @@ Multiply two terms.
 
 
 """
+Compute the mod of a term with an integer.
+"""
+mod(t::Term, p::Int)::Term = Term(mod(t.coeff,p), t.degree)
+
+"""
 Compute the symmetric mod of a term with an integer.
 """
-mod(t::Term, p::Int) = Term(mod(t.coeff,p), t.degree)
+smod(t::Term, p::Int)::Term = Term(smod(t.coeff, p), t.degree)
 
 """
 Compute the derivative of a term.
 """
-derivative(t::Term) = Term(t.coeff*t.degree, max(t.degree-1,0))
+derivative(t::Term)::Term = Term(t.coeff*t.degree, max(t.degree-1,0))
 
 """
 Divide two terms. Returns a function of an integer.

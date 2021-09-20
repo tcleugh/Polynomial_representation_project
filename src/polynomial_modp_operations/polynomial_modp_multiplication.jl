@@ -46,11 +46,8 @@ function *(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
         push!(fixed_terms, t)
         i += 1
     end
-
     return PolynomialModP(fixed_terms, p1.prime)
-
 end
-
 
 """
 Power of a polynomial mod p.

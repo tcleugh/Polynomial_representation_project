@@ -43,7 +43,9 @@ end
 """
 Multiply two polynomials
 """
-function new_mult(a::Polynomial, b::Polynomial)::PolynomialModP
+function new_mult(a::Polynomial, b::Polynomial)::Polynomial
+    (iszero(a) || iszero(b)) && return zero(Polynomial)
+
     h1, h2 = maximum(abs.(coeffs(a))), maximum(abs.(coeffs(b)))
 
     B = 2 * h1 * h2 * min(degree(a) + 1, degree(b) + 1)
@@ -59,7 +61,7 @@ function new_mult(a::Polynomial, b::Polynomial)::PolynomialModP
         M = M * p
     end
     
-    return PolynomialModP(c, M)
+    return smod(c, M)
 end
 
 """
@@ -69,19 +71,18 @@ function crt(p1::Polynomial, p2::Polynomial, n::Integer, m::Integer)::Polynomial
     d1, d2 = degree(p1), degree(p2)
 
     out = zero(Polynomial)
-    x = x_poly()
     
-    k = max(degree(p1), degree(p2))
+    k = max(d1, d2)
     while k ≥ 0
         ak = (k > d1) ? 0 : coeff(p1, k)
         bk = (k > d2) ? 0 : coeff(p2, k)
         ck = crt(ak, bk, n, m)
-        out += ck * x^k
+        push!(out, Term(ck, k))
         k -= 1
     end
     return out
 end
 
-crt(p1::PolynomialModP, p2::PolynomialModP, n::Integer, m::Integer) = crt(p1.poly, p2.poly, n, m)
-crt(p1::Polynomial, p2::PolynomialModP, n::Integer, m::Integer) = crt(p1, p2.poly, n, m)
-crt(p1::PolynomialModP, p2::Polynomial, n::Integer, m::Integer) = crt(p1.poly, p2, n, m)
+crt(p1::PolynomialModP, p2::PolynomialModP, n::Integer, m::Integer)::Polynomial = crt(p1.poly, p2.poly, n, m)
+crt(p1::Polynomial, p2::PolynomialModP, n::Integer, m::Integer)::Polynomial = crt(p1, p2.poly, n, m)
+crt(p1::PolynomialModP, p2::Polynomial, n::Integer, m::Integer)::Polynomial = crt(p1.poly, p2, n, m)

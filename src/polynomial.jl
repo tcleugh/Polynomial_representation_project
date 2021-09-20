@@ -273,12 +273,23 @@ Warning this may not make sense if n does not divide all the coefficients of p.
 ÷(p::Polynomial, n::Int) = (prime) -> Polynomial(sort(map((term) -> ((term ÷ n)(prime)), p.terms)))
 
 """
-Take the symmetric mod of a polynomial with an integer.
+Take the mod of a polynomial with an integer.
 """
 function mod(p::Polynomial, n::Int)::Polynomial
     p_out = Polynomial()
     for term in p
         push!(p_out, mod(term, n)) #if coeff reduced to zero, push! will handle it
+    end
+    return p_out
+end
+
+"""
+Take the symmetric mod of a polynomial with an integer.
+"""
+function smod(p::Polynomial, n::Int)::Polynomial
+    p_out = Polynomial()
+    for term in p
+        push!(p_out, smod(term, n)) #if coeff reduced to zero, push! will handle it
     end
     return p_out
 end
