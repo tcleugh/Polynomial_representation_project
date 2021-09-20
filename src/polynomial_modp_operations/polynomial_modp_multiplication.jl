@@ -9,7 +9,7 @@
 """
 Multiply two polynomials mod p.
 """
-function *(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
+function old_mult(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
     @assert p1.prime == p2.prime
     p_out = zero(PolynomialModP, p1.prime)
 
@@ -18,6 +18,39 @@ function *(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
     end
     return p_out
 end
+
+"""
+Multiply two polynomials mod p
+"""
+function *(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
+    @assert p1.prime == p2.prime
+
+    # Calculates all term multiplications
+    terms = Term[]
+    for t1 in p1
+        for t2 in p2
+            push!(terms, t1*t2)
+        end
+    end
+
+    # Merges all terms of the same degree
+    sort!(terms)
+    fixed_terms = Term[]
+    i = 1
+    while i ≤ length(terms)
+        t = terms[i]
+        while i < length(terms) && terms[i + 1].degree == t.degree
+            t += terms[i + 1]
+            i += 1
+        end
+        push!(fixed_terms, t)
+        i += 1
+    end
+
+    return PolynomialModP(fixed_terms, p1.prime)
+
+end
+
 
 """
 Power of a polynomial mod p.

@@ -50,7 +50,7 @@ end
 """
 Expand a factorization.
 """
-function expand_factorization(factorization::Vector{Tuple{PolynomialModP,Int}})::PolynomialModP
+function expand_factorization(factorization::Vector{Tuple{PolynomialModP, Integer}})::PolynomialModP
     length(factorization) == 1 && return first(factorization[1])^last(factorization[1])
     return *([first(tt)^last(tt) for tt in factorization]...)
 end

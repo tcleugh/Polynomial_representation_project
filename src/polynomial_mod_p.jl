@@ -30,6 +30,11 @@ Construct the zero polynomial in the given field.
 PolynomialModP(prime::Integer) = PolynomialModP(Polynomial(), prime)
 
 """
+Construct a polynomial from a vector of terms in the given field.
+"""
+PolynomialModP(h::Vector{Term}, prime::Integer) = PolynomialModP(Polynomial(h), prime)
+
+"""
 Construct the zero polynomial in the given field.
 """
 zero(::Type{PolynomialModP}, prime::Integer) = PolynomialModP(prime)
