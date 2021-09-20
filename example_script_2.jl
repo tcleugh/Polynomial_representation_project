@@ -51,7 +51,7 @@ println("Arithmetic between polynomials:")
 println()
 
 
-pm1 = PolynomialModP(x + 1, 7)
+@show pm1 = PolynomialModP(23x^2 +7x + 8, 7)
 @show pm1^2
 
 

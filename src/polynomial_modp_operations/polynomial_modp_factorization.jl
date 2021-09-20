@@ -11,7 +11,7 @@ Factors a polynomial over the field Z_p.
 
 Returns a vector of tuples of (irreducible polynomials (mod p), multiplicity) such that their product of the list (mod p) is f. Irreducibles are fixed points on the function factor.
 """
-function factor(p::PolynomialModP)::Vector{Tuple{PolynomialModP,Int}}
+function factor(p::PolynomialModP)::Vector{Tuple{PolynomialModP,Integer}}
     #Cantor Zassenhaus factorization
     degree(p) ≤ 1 && return [(p, 1)]
 
@@ -58,7 +58,7 @@ end
 """
 Compute the number of times g divides f
 """
-function multiplicity(f::PolynomialModP, g::PolynomialModP)::Int
+function multiplicity(f::PolynomialModP, g::PolynomialModP)::Integer
     degree(gcd(f, g)) == 0 && return 0
     return 1 + multiplicity(f ÷ g, g)
 end
@@ -92,7 +92,7 @@ Distinct degree split.
 
 Returns a list of irreducible polynomials of degree `d` so that the product of that list (mod prime) is the polynomial `f`.
 """
-function dd_split(p::PolynomialModP, d::Int)::Vector{PolynomialModP}
+function dd_split(p::PolynomialModP, d::Integer)::Vector{PolynomialModP}
     degree(p) == d && return [p]
     degree(p) == 0 && return []
     w = PolynomialModP(rand(Polynomial, degree = d, monic = true), p.prime)
@@ -100,4 +100,22 @@ function dd_split(p::PolynomialModP, d::Int)::Vector{PolynomialModP}
     g = gcd(w^n_power - one(PolynomialModP, p.prime), p)
     ḡ = p ÷ g 
     return vcat(dd_split(g, d), dd_split(ḡ, d))
+end
+
+"""
+Pretty printing of the factored polynomials
+"""
+function show(io::IO, factoredp::Vector{Tuple{PolynomialModP,Integer}})
+    length(factoredp) == 0 && print(io, 0)
+    
+    print(io, first(last(factoredp)).poly)
+
+    for i in 1:(length(factoredp) - 1)
+        (p, n) = factoredp[i]
+        
+        print(io, "($(p.poly))")
+        n > 1 && print(io, "^$n")
+    end
+
+    print(io, " mod $(first(factoredp[1]).prime)")
 end

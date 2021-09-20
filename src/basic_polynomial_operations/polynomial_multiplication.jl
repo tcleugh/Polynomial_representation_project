@@ -18,16 +18,27 @@ function *(p1::Polynomial, p2::Polynomial)::Polynomial
 end
 
 """
-Power of a polynomial.
+Power of a polynomial
 """
-function ^(p::Polynomial, n::Int)
+function ^(p::Polynomial, n::Integer)
     n < 0 && error("No negative power")
     out = one(p)
-    for _ in 1:n
-        out *= p
+    n == 0 && return out
+    
+    digs = digits(n, base=2)
+    len = length(digs)
+    square = p
+
+    for i in 1:(len)
+        if digs[i] == 1 
+           out *= square
+        end
+        (i == 0) && break
+        square *= square
     end
     return out
 end
+
 
 """
 Multiply two polynomials
