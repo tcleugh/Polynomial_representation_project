@@ -34,7 +34,7 @@ end
 """
 Test product of polynomials using crt multiplication.
 """
-function prod_crt_test_poly(;N::Int = 10^3, N_prods::Int = 20, seed::Int = 0)
+function prod_crt_test_poly(;N::Int = 10^3, N_prods::Int = 10, seed::Int = 0)
     
     Random.seed!(seed)
     for _ in 1:N
@@ -43,7 +43,6 @@ function prod_crt_test_poly(;N::Int = 10^3, N_prods::Int = 20, seed::Int = 0)
         prod = crt_mult(p1, p2)
         @assert prod ==  p1*p2
     end
-
     println("prod_crt_test_poly - PASSED")
     
 end

@@ -75,11 +75,11 @@ function rand(::Type{Polynomial} ;
         
     while true 
         _degree = degree == -1 ? rand(Poisson(mean_degree)) : degree
-        _terms = terms == -1 ? rand(Binomial(_degree,prob_term)) : terms
-        degrees = vcat(sort(sample(0:_degree-1,_terms,replace = false)),_degree)
-        coeffs = rand(1:max_coeff,_terms+1)
+        _terms = terms == -1 ? rand(Binomial(_degree, prob_term)) : terms
+        degrees = vcat(sort(sample(0:_degree-1, _terms, replace = false)), _degree)
+        coeffs = rand(1:max_coeff, _terms+1)
         monic && (coeffs[end] = 1)
-        p = Polynomial( [Term(coeffs[i],degrees[i]) for i in 1:length(degrees)] )
+        p = Polynomial( [Term(coeffs[i], degrees[i]) for i in 1:length(degrees)] )
         condition(p) && return p
     end
 end
@@ -230,36 +230,6 @@ Check if a polynomial is equal to 0.
 ##################################################################
 # Operations with two objects where at least one is a polynomial #
 ##################################################################
-
-# Changes made to add substraction of terms and integers
-"""
-Subtraction of two polynomials.
-"""
--(p1::Polynomial, p2::Polynomial)::Polynomial = p1 + (-p2)
-
-"""
-Subtraction of polynomial and a term
-"""
--(p::Polynomial, t::Term)::Polynomial = p - Polynomial(t)
--(t::Term, p::Polynomial)::Polynomial = Polynomial(t) - p
-
-"""
-Subtraction of polynomial and an integer
-"""
--(p::Polynomial, n::Int)::Polynomial = p - Term(n,0)
--(n::Int, p::Polynomial)::Polynomial = Term(n,0) - p 
-
-"""
-Multiplication of polynomial and term.
-"""
-*(t::Term, p::Polynomial)::Polynomial = iszero(t) ? Polynomial() : Polynomial(sort(map((term) -> t * term, p.terms)))
-*(p::Polynomial, t::Term)::Polynomial = t * p
-
-"""
-Multiplication of polynomial and an integer.
-"""
-*(n::Int, p::Polynomial)::Polynomial = p * Term(n, 0)
-*(p::Polynomial, n::Int)::Polynomial = n * p
 
 """
 Integer division of a polynomial by an integer.

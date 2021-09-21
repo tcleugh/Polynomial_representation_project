@@ -55,13 +55,13 @@ function crt_mult(a::Polynomial, b::Polynomial)::Polynomial
     prime = M
 
     while M < B
-        prime = nextPrime(M)
+        prime = nextPrime(prime)
         c_ = PolynomialModP(a, prime) * PolynomialModP(b, prime)
         c = crt(c, c_, M, prime)
         M = M * prime
     end
     
-    return c #smod(c, M)
+    return smod(c, M)
 end
 
 """
@@ -86,3 +86,15 @@ end
 crt(p1::PolynomialModP, p2::PolynomialModP, n::Integer, m::Integer)::Polynomial = crt(p1.poly, p2.poly, n, m)
 crt(p1::Polynomial, p2::PolynomialModP, n::Integer, m::Integer)::Polynomial = crt(p1, p2.poly, n, m)
 crt(p1::PolynomialModP, p2::Polynomial, n::Integer, m::Integer)::Polynomial = crt(p1.poly, p2, n, m)
+
+"""
+Multiplication of polynomial and term.
+"""
+*(t::Term, p::Polynomial)::Polynomial = iszero(t) ? Polynomial() : Polynomial(sort(map((term) -> t * term, p.terms)))
+*(p::Polynomial, t::Term)::Polynomial = t * p
+
+"""
+Multiplication of polynomial and an integer.
+"""
+*(n::Int, p::Polynomial)::Polynomial = p * Term(n, 0)
+*(p::Polynomial, n::Int)::Polynomial = n * p
