@@ -75,7 +75,7 @@ function dd_factor(p::PolynomialModP)::Array{PolynomialModP}
 
     #Looping over degrees
     for k in 1:degree(p)
-        w = rem(w^p.prime, p) # This line causes issues for mod 3
+        w = rem(w^p.prime, p) # These two lines causes issues for mod 3 (x^(3k) terms disapear for any int k)
         g[k] = gcd(w - x, p) 
         p = p ÷ g[k]
     end
