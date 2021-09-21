@@ -17,17 +17,16 @@ function factor(p::PolynomialModP)::Vector{Tuple{PolynomialModP,Integer}}
 
     # make p primitive
     pp = prim_part(p)      
-    # @show "after prim:", pp
+    #@show "after prim:", pp
 
-     # make p square-free
+    # make p square-free
     squares_poly = gcd(p, derivative(pp)) 
     pp = pp ÷ squares_poly 
-    # @show "after square free:", pp
+    #@show "after square free:", pp
 
     # make p monic
-    old_coeff = leading(pp).coeff
-    pp = pp ÷ old_coeff      
-    # @show "after monic:", pp
+    pp = pp ÷ leading(pp).coeff     
+    #@show "after monic:", pp
 
     dds = dd_factor(pp)
 
@@ -42,7 +41,7 @@ function factor(p::PolynomialModP)::Vector{Tuple{PolynomialModP,Integer}}
     end
 
     #Append the leading coefficient as well
-    push!(ret_val, (leading(p).coeff * one(PolynomialModP, p.prime), 1))
+    push!(ret_val, (PolynomialModP(Term(leading(p).coeff, 0), p.prime), 1))
 
     return ret_val
 end
@@ -67,7 +66,7 @@ end
 """
 Distinct degree factorization.
 
-Given a square free polynomial `f` returns a list, `g` such that `g[k]` is a product of irreducible polynomials of degree `k` for `k` in 1,...,degree(f) ÷ 2, such that the product of the list (mod `prime`) is equal to `f` (mod `prime`).
+Given a square free polynomial `p` returns a list, `g` such that `g[k]` is a product of irreducible polynomials of degree `k` for `k` in 1,...,degree(f) ÷ 2, such that the product of the list (mod `prime`) is equal to `p` (mod `prime`).
 """
 function dd_factor(p::PolynomialModP)::Array{PolynomialModP}
     x = PolynomialModP(x_poly(), p.prime)
@@ -76,7 +75,7 @@ function dd_factor(p::PolynomialModP)::Array{PolynomialModP}
 
     #Looping over degrees
     for k in 1:degree(p)
-        w = rem(w^p.prime, p)
+        w = rem(w^p.prime, p) # This line causes issues for mod 3
         g[k] = gcd(w - x, p) 
         p = p ÷ g[k]
     end
@@ -96,7 +95,7 @@ function dd_split(p::PolynomialModP, d::Integer)::Vector{PolynomialModP}
     degree(p) == d && return [p]
     degree(p) == 0 && return []
     w = PolynomialModP(rand(Polynomial, degree = d, monic = true), p.prime)
-    n_power = (p.prime^d-1) ÷ 2
+    n_power = (p.prime^d - 1) ÷ 2
     g = gcd(w^n_power - one(PolynomialModP, p.prime), p)
     ḡ = p ÷ g 
     return vcat(dd_split(g, d), dd_split(ḡ, d))

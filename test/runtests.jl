@@ -21,14 +21,7 @@ test_ext_euclid_ints()
 include("polynomials_test.jl")
 prod_test_poly()
 prod_derivative_test_poly()
-#ext_euclid_test_poly()
-#division_test_poly()
-
-####
-# Execute unit tests for polynomial factorization
-####
-#include("factorization_test.jl")
-#factor_test_poly()
+prod_crt_test_poly()
 
 ####
 # Execute unit tests for polynomial mod p

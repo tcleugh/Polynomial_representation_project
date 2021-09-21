@@ -150,16 +150,18 @@ end
 """
 Test factorization of polynomials mod p.
 """
-function factor_test_poly(;N::Int = 25, seed::Int = 0, primes::Vector{Int} = [5,7,17,19])
+function factor_test_poly(;N::Int = 5, seed::Int = 0, num_primes::Int = 20)
     Random.seed!(seed)
-    for prime in primes
+    prime = 3
+    for _ in 1:num_primes
+        prime = nextPrime(prime)
         print("\ndoing prime = $prime \t")
         for _ in 1:N
             print(".")
             p = PolynomialModP(rand(Polynomial), prime)
             factorization = factor(p)
             pr = expand_factorization(factorization)
-            @assert iszero(p-pr)
+            @assert iszero(p - pr)
         end
     end
 

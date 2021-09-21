@@ -164,8 +164,7 @@ prim_part(p::PolynomialModP)::PolynomialModP = p ÷ content(p)
 """
 A square free polynomial.
 """
-square_free(p::PolynomialModP)::PolynomialModP = PolnomialModP(square_free(p.poly, p.prime), p.prime)
-
+square_free(p::PolynomialModP)::PolynomialModP = p ÷ gcd(p, derivative(p))
 
 #######################################
 # Queries about two polynomials mod p #

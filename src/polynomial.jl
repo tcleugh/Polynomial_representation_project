@@ -211,10 +211,6 @@ The prim part (multiply a polynomial by the inverse of its content).
 """
 prim_part(p::Polynomial) = p ÷ content(p)
 
-"""
-A square free polynomial.
-"""
-square_free(p::Polynomial, prime::Int)::Polynomial = (p ÷ gcd(p, derivative(p), prime))(prime)
 
 #################################
 # Queries about two polynomials #

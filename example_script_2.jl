@@ -44,25 +44,29 @@ println("Polynomials support equality checking:")
 println()
 
 # arithmetic
-println("Arithmetic between polynomials:")
+println("Arithmetic with polynomials:")
 @show p1 + p3
 @show p2 - p4
 @show p1 * p3
+@show p1^3
 println()
 
-
+println("Polynomials can also be created in a field Z mod prime")
 @show pm1 = PolynomialModP(23x^2 +7x + 8, 7)
-@show pm1^2
+@show pm2 = rand(PolynomialModP, 7)
+println()
 
+println("Modular arithmetic can be performed on polynomials in the same field")
+@show pm1 + pm2
+@show pm1 - pm2
+@show pm1 * pm2
+println()
 
-#p2_d_p1 = p2 ÷ p1
-#@show p2_d_p1(11)
-# mod
+println("Polynomials mod p also support divison and gcd")
+@show gcd(pm1, pm2)
+@show (pm2 ÷ pm1)
+println()
 
-# division
-
-# factor
-
-# expand_factorization
-
-# distinct degree
+println("Polynomials mod p can also be factored mod p")
+@show f = factor(pm2)
+@show expand_factorization(f);

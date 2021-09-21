@@ -41,31 +41,31 @@ end
 
 
 """
-Multiply two polynomials
+Multiply two polynomials using chinese remainder therom
 """
-function new_mult(a::Polynomial, b::Polynomial)::Polynomial
+function crt_mult(a::Polynomial, b::Polynomial)::Polynomial
     (iszero(a) || iszero(b)) && return zero(Polynomial)
+    #(degree(a) == 0 || degree(b) == 0) && return a * b
 
     h1, h2 = maximum(abs.(coeffs(a))), maximum(abs.(coeffs(b)))
 
     B = 2 * h1 * h2 * min(degree(a) + 1, degree(b) + 1)
     M = 3
     c = PolynomialModP(a, 3) * PolynomialModP(b, 3)
-    p = M
+    prime = M
 
     while M < B
-        pp = p
-        p = nextPrime(M)
-        c_ = PolynomialModP(a, p) * PolynomialModP(b, p)
-        c = crt(c, c_, pp, p)
-        M = M * p
+        prime = nextPrime(M)
+        c_ = PolynomialModP(a, prime) * PolynomialModP(b, prime)
+        c = crt(c, c_, M, prime)
+        M = M * prime
     end
     
-    return smod(c, M)
+    return c #smod(c, M)
 end
 
 """
-Chinese remainder therom on two polynomials mod p
+Chinese remainder therom on two polynomials
 """
 function crt(p1::Polynomial, p2::Polynomial, n::Integer, m::Integer)::Polynomial
     d1, d2 = degree(p1), degree(p2)

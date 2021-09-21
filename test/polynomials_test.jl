@@ -32,6 +32,23 @@ function prod_test_poly(;N::Int = 10^3, N_prods::Int = 20, seed::Int = 0)
 end
 
 """
+Test product of polynomials using crt multiplication.
+"""
+function prod_crt_test_poly(;N::Int = 10^3, N_prods::Int = 20, seed::Int = 0)
+    
+    Random.seed!(seed)
+    for _ in 1:N
+        p1 = rand(Polynomial)
+        p2 = rand(Polynomial)
+        prod = crt_mult(p1, p2)
+        @assert prod ==  p1*p2
+    end
+
+    println("prod_crt_test_poly - PASSED")
+    
+end
+
+"""
 Test derivative of polynomials (as well as product).
 """
 function prod_derivative_test_poly(;N::Int = 10^2,  seed::Int = 0)
@@ -44,33 +61,4 @@ function prod_derivative_test_poly(;N::Int = 10^2,  seed::Int = 0)
         @assert (p1d*p2) + (p1*p2d) == derivative(p1*p2)
     end
     println("prod_derivative_test_poly - PASSED")
-end
-
-
-"""
-Test division of polynomials modulo p.
-"""
-function division_test_poly(;prime::Int = 101, N::Int = 10^4, seed::Int = 0)
-    Random.seed!(seed)
-    for _ in 1:N
-        p1 = rand(Polynomial)
-        p2 = rand(Polynomial)
-        p_prod = p1*p2
-        q, r = Polynomial(), Polynomial()
-        try
-            q, r = divide(p_prod, p2)(prime)
-            if (q, r) == (nothing,nothing)
-                println("Unlucky prime: $p1 is reduced to $(p1 % prime) modulo $prime")
-                continue
-            end
-        catch e
-            if typeof(e) == DivideError
-                @assert mod(p2, prime) == 0
-            else
-                throw(e)
-            end
-        end
-        @assert iszero( mod(q*p2+r - p_prod, prime) )
-    end
-    println("division_test_poly - PASSED")
 end
