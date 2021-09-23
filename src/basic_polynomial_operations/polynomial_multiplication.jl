@@ -10,11 +10,20 @@
 Multiply two polynomials.
 """
 function *(p1::Polynomial, p2::Polynomial)::Polynomial
-    p_out = Polynomial()
-    for t in p1
-        p_out = p_out + (t * p2)
+    (iszero(p1) || iszero(p2)) && return zero(Polynomial)
+
+    # Calculates all term multiplications
+    terms = Vector{Term}(undef, length(p1) * length(p2))
+    
+    i = 1
+    for t1 in p1
+        for t2 in p2
+            terms[i] = t1*t2
+            i += 1
+        end
     end
-    return p_out
+    # Polynomial constructor handles terms of same degree
+    return Polynomial(terms)
 end
 
 """
@@ -26,14 +35,13 @@ function ^(p::Polynomial, n::Integer)
     n == 0 && return out
     
     digs = digits(n, base=2)
-    len = length(digs)
     square = p
 
-    for i in 1:(len)
+    for i in 1:length(digs)
         if digs[i] == 1 
            out *= square
         end
-        (i == 0) && break
+        i == length(digs) && break
         square *= square
     end
     return out
@@ -61,6 +69,7 @@ function crt_mult(a::Polynomial, b::Polynomial)::Polynomial
         M = M * prime
     end
     
+    typeof(c) == PolynomialModP && return smod(c.poly, M)
     return smod(c, M)
 end
 

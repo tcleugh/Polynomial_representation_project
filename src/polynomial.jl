@@ -22,7 +22,7 @@ struct Polynomial
     Polynomial() = new(Term[])
 
     #Inner constructor
-    Polynomial(h::Vector{Term}) = new(sort(filter((term) -> term.coeff != 0, h)))
+    Polynomial(h::Vector{Term}) = new(merge(filter((term) -> term.coeff != 0, h)))
 end
 
 """
