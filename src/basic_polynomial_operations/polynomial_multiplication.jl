@@ -7,23 +7,28 @@
 #############################################################################
 
 """
-Multiply two polynomials.
+Multiply two polynomials
 """
 function *(p1::Polynomial, p2::Polynomial)::Polynomial
-    (iszero(p1) || iszero(p2)) && return zero(Polynomial)
+    (iszero(p1) || iszero(p2)) && return zero(PolynomialModP, p1.prime)
 
-    # Calculates all term multiplications
-    terms = Vector{Term}(undef, length(p1) * length(p2))
-    
-    i = 1
+    max_degree = degree(p1) + degree(p2)
+
+    # Creates a sorted vector of the coefficients of p1 * p2
+    coeffs = fill(0, (max_degree + 1, 1))
     for t1 in p1
         for t2 in p2
-            terms[i] = t1*t2
-            i += 1
+            coeffs[t1.degree + t2.degree + 1] += t1.coeff * t2.coeff
         end
     end
-    # Polynomial constructor handles terms of same degree
-    return Polynomial(terms)
+
+    # Converts the coefficient vector into a term vector
+    fixed_terms = Term[]
+    for (degree, coeff) in enumerate(coeffs)
+        coeff != 0 && push!(fixed_terms, Term(coeff, degree - 1))
+    end
+    # uses the "safe" constructor to avoid excess sorting/merging/filtering
+    return Polynomial(fixed_terms, true)
 end
 
 """
@@ -46,7 +51,6 @@ function ^(p::Polynomial, n::Integer)
     end
     return out
 end
-
 
 """
 Multiply two polynomials using chinese remainder therom

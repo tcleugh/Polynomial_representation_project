@@ -13,19 +13,24 @@ function *(p1::PolynomialModP, p2::PolynomialModP)::PolynomialModP
     @assert p1.prime == p2.prime
     (iszero(p1) || iszero(p2)) && return zero(PolynomialModP, p1.prime)
 
-    # Calculates all term multiplications
-    terms = Vector{Term}(undef, length(p1) * length(p2))
-    
-    i = 1
+    prime = p1.prime
+    max_degree = degree(p1) + degree(p2)
+
+    # Creates a sorted vector of the coefficients of p1 * p2
+    coeffs = fill(0, (max_degree + 1, 1))
     for t1 in p1
         for t2 in p2
-            terms[i] = t1*t2
-            i += 1
+            @inbounds coeffs[t1.degree + t2.degree + 1] += t1.coeff * t2.coeff
         end
     end
 
-    # Polynomial constructor handles terms of same degree
-    return PolynomialModP(terms, p1.prime)
+    # Converts the coefficient vector into a term vector
+    fixed_terms = Term[]
+    for (degree, coeff) in enumerate(coeffs)
+        coeff != 0 && mod(coeff, prime) != 0 && push!(fixed_terms, Term(mod(coeff, prime), degree - 1))
+    end
+    # uses the "safe" constructor to avoid excess sorting/merging/filtering
+    return PolynomialModP(fixed_terms, p1.prime, true)
 end
 
 """
@@ -38,12 +43,13 @@ function ^(p::PolynomialModP, n::Int)::PolynomialModP
     
     digs = digits(n, base=2)
     square = p
+    len = length(digs)
 
-    for i in 1:length(digs)
+    for i in 1:len
         if @inbounds digs[i] == 1 
            out *= square
         end
-        (i == length(digs)) && break
+        (i == len) && break
         square *= square
     end
     return out

@@ -17,6 +17,10 @@ struct PolynomialModP
     poly::Polynomial   
     prime::Integer
     PolynomialModP(p::Polynomial, prime::Integer) = new(Polynomial(map((term) -> mod(term, prime), p.terms)), prime)
+
+    # Construct a polynomial from a vector of terms that is pre sorted with all valid coefficients
+    # Only use from multiplication (allows for speed increase)
+    PolynomialModP(h::Vector{Term}, prime::Integer, safe::Bool) = safe ? new(Polynomial(h, safe), prime) : error("Invalid use")
 end
 
 """

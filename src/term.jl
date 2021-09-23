@@ -126,7 +126,6 @@ Integer divide a term by an integer.
 """
 ÷(t::Term, n::Int) = t ÷ Term(n,0)
 
-
 """
 Returns the vector sorted with all terms of same degree combined
 """
@@ -136,11 +135,12 @@ function merge(terms::Vector{Term})::Vector{Term}
     i = 1
     while i ≤ length(terms)
         t = terms[i]
+        coeff = t.coeff
         while i < length(terms) && terms[i + 1].degree == t.degree
-            t += terms[i + 1]
+            coeff += terms[i + 1].coeff
             i += 1
         end
-        push!(fixed_terms, t)
+        push!(fixed_terms, Term(coeff, t.degree))
         i += 1
     end
     return fixed_terms

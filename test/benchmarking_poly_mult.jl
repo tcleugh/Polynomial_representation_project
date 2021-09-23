@@ -29,7 +29,7 @@ end
 function time_regular_vary_degree(max_degree::Int)
     
     times = Vector{Float64}(undef,0)
-    degree_range = 5: 20 :max_degree
+    degree_range = 5: 50 :max_degree
 
     for degree in degree_range
         start_time = time_ns()
@@ -43,7 +43,7 @@ end
 function time_crt_vary_degree(max_degree::Int)
     
     times = Vector{Float64}(undef,0)
-    degree_range = 5: 20 : max_degree
+    degree_range = 5: 50 : max_degree
 
     for degree in degree_range
         start_time = time_ns()
@@ -85,8 +85,8 @@ end
 
 function plot_timings()
     
-    times1, degree_range1 = time_regular_vary_degree(200)
-    times2, degree_range2 = time_crt_vary_degree(200)
+    times1, degree_range1 = time_regular_vary_degree(1000)
+    times2, degree_range2 = time_crt_vary_degree(1000)
 
     display(plot([degree_range1 degree_range2], [times1 times2], 
         title = "Comparing methods with varying degree",

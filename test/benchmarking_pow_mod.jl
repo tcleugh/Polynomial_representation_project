@@ -16,7 +16,7 @@ end
 function time_new_vary_power(max_power::Int, poly_list::Vector{PolynomialModP})
     
     times = Vector{Float64}(undef,0)
-    power_range = 0: 20 :max_power
+    power_range = 0: 50 :max_power
 
     for power in power_range
         start_time = time_ns()
@@ -31,7 +31,7 @@ end
 function time_old_vary_power(max_power::Int, poly_list::Vector{PolynomialModP})
     
     times = Vector{Float64}(undef,0)
-    power_range = 0: 20 :max_power
+    power_range = 0: 50 :max_power
 
     for power in power_range
         start_time = time_ns()
@@ -47,7 +47,7 @@ end
 function plot_pow_timings()
     Random.seed!(0)
     N = 10^2
-    max_pow = 100
+    max_pow = 500
     poly_list = Vector{PolynomialModP}(undef, N)
     for i in 1:N
         poly_list[i] = rand(PolynomialModP, 101)

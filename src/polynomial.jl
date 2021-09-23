@@ -23,6 +23,10 @@ struct Polynomial
 
     #Inner constructor
     Polynomial(h::Vector{Term}) = new(merge(filter((term) -> term.coeff != 0, h)))
+
+    # Construct a polynomial from a vector of terms that is pre sorted with all valid coefficients
+    # Only use from multiplication (allows for speed increase)
+    Polynomial(h::Vector{Term}, safe::Bool) = safe ? new(h) : error("Invalid use")
 end
 
 """
@@ -38,7 +42,6 @@ end
 Construct a polynomial of the form x^p-x.
 """
 cyclotonic_polynomial(p::Int)::Polynomial = Polynomial([Term(1,p), Term(-1,0)])
-
 
 """
 Construct a polynomial of the form x-n.
